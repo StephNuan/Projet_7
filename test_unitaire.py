@@ -13,15 +13,14 @@ with zipfile.ZipFile(zip_file_path2, 'r') as zipf:
 
 # TEST CONNEXION API
 # URL de l'API
-#api_url = "http://127.0.0.1:5000/credit/"
-url_streamlit= https://projet7-oc.streamlit.app/
+api_url = "http://127.0.0.1:5000/credit/"
 
 # ID client de test
 client_id = 100028
 
 def test_api_connection():
     # Envoi d'une requête GET à l'API
-    response = requests.get(url_streamlit, params={"id_client": client_id})
+    response = requests.get(api_url, params={"id_client": client_id})
 
     # Vérification du code de statut HTTP de la réponse
     assert response.status_code == 200, f"La requête a échoué avec le code de statut {response.status_code}"
