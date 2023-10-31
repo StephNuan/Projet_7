@@ -279,7 +279,7 @@ if show_credit_decision:
     base_url = "http://127.0.0.1:5000/credit/" + str(id_client)
 
     # Charger le modèle et effectuer les calculs nécessaires
-    lgbm = pickle.load(open('best_final_prediction.pickle', 'rb'))
+    lgbm = pickle.load(open('Modele.pickle', 'rb'))
     classe_reelle = data[data['SK_ID_CURR'] == id_client]
     ignore_features = ['Unnamed: 0', 'SK_ID_CURR', 'INDEX', 'TARGET']
     relevant_features = [col for col in classe_reelle.columns if col not in ignore_features]
