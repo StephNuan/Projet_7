@@ -27,7 +27,13 @@ with zipfile.ZipFile(zip_file_path, 'r') as zipf:
                 
 data_test = pd.read_csv('application_test.csv')
         
-data_train = pd.read_csv('application_train.csv')
+zip_file_path2 = 'application_train.zip'  
+df2 = 'application_train.csv'  
+
+# Créez un objet ZipFile pour ouvrir le fichier ZIP en mode lecture
+with zipfile.ZipFile(zip_file_path2, 'r') as zipf:
+    with zipf.open(df2) as file_in_zip:
+        data_train = pd.read_csv(file_in_zip) 
         
         #description des features
         
