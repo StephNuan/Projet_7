@@ -27,7 +27,6 @@ jobs:
           pip install --upgrade pip
           pip install pytest
           pip install requests
-          pip install zipfile
           pip install pandas
           pip install numpy
           pip install imbalanced-learn
