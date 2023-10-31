@@ -5,13 +5,12 @@ on: push
 jobs:
   run-tests:
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         python-version: [3.11.5]
 
     name: UnitaryTests
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
