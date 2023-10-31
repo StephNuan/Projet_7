@@ -5,12 +5,13 @@ on: push
 jobs:
   run-tests:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.11.5]
+        python-version: [3.11.3]
 
     name: UnitaryTests
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -24,7 +25,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install requests
           pip install pytest
           pip install pandas
           pip install numpy
