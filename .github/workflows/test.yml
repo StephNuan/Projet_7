@@ -5,11 +5,13 @@ on: push
 jobs:
   run-tests:
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.9]
+        os: [ubuntu-latest]
+        python-version: [3.11.5]
 
-    name: Unitary Tests
-    runs-on: ubuntu-latest
+    name: UnitaryTests
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
@@ -19,18 +21,15 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Create and activate virtual environment
-        run: python -m venv venv
-      - name: Activate virtual environment
-        run: source venv/bin/activate
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install pytest
+          pip install pandas
+          pip install numpy
+          pip install imbalanced-learn
+          pip install lightgbm
 
       - name: Run tests
         run: pytest
-
