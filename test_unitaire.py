@@ -1,18 +1,15 @@
-#import unittest
+import zipfile
 import pandas as pd
 import requests
 import pytest
 
+zip_file_path2 = 'application_train.zip'  
+df2 = 'application_train.csv'  
 
-# TEST NOMBRE DE COLONNES ET LIGNES
-
-# class TestUnitaire(unittest.TestCase):
-
-#     def test_dataframe_size(self):    
-#         app_train_df = pd.read_csv('application_train.csv')
-#         num_rows, num_cols = app_train_df.shape
-#         self.assertEqual(num_rows, 307511)  
-#         self.assertEqual(num_cols, 122) 
+# Créez un objet ZipFile pour ouvrir le fichier ZIP en mode lecture
+with zipfile.ZipFile(zip_file_path2, 'r') as zipf:
+    with zipf.open(df2) as file_in_zip:
+        data_train = pd.read_csv(file_in_zip) 
 
 # TEST CONNEXION API
 # URL de l'API
@@ -34,14 +31,17 @@ def test_api_connection():
     assert "proba" in response_data, "La réponse ne contient pas la clé 'proba'"
 
 def test_dataframe_shape():
-    app_train_df = pd.read_csv('application_train.csv')
-    assert app_train_df.shape == (307511, 122)
+    app_train_df = data_train
+    assert app_train_df.shape == (149998, 122)
 
 def test_dataframe_type():
-    app_train_df = pd.read_csv('application_train.csv')
+    app_train_df = data_train
     assert isinstance(app_train_df, pd.DataFrame), "app_train_df n'est pas un DataFrame."
 
 if __name__ == "__main__":
     pytest.main([__file__])
+
+
+
 
 
