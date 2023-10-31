@@ -1,22 +1,29 @@
+import zipfile 
+import pandas as pd
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pickle
+import time
 import math
+from urllib.request import urlopen
 import json
 import requests
 import plotly.graph_objects as go 
 import shap
+import joblib
 from PIL import Image
-
-
-
 import warnings
 warnings.filterwarnings("ignore")
     
-df = pd.read_csv('df_test.csv', encoding='utf-8')
+zip_file_path = 'df_test.zip'  
+df = 'df_test.csv'  
+
+# Créez un objet ZipFile pour ouvrir le fichier ZIP en mode lecture
+with zipfile.ZipFile(zip_file_path, 'r') as zipf:
+    with zipf.open(df) as file_in_zip:
+        data = pd.read_csv(file_in_zip) 
                 
 data_test = pd.read_csv('application_test.csv')
         
@@ -197,7 +204,7 @@ def univariate_categorical(applicationDF,feature,client_feature_val,titre,ylog=F
             
 #Chargement des données    
 ignore_features = ['Unnamed: 0','SK_ID_CURR', 'INDEX', 'TARGET']
-relevant_features = [col for col in df if col not in ignore_features]
+relevant_features = [col for col in data if col not in ignore_features]
 
 #Chargement du modèle
 lgbm = pickle.load(open('Modele.pickle', 'rb'))
@@ -221,7 +228,7 @@ with st.sidebar:
     #st.header(" Prêt à dépenser")
 
     st.write("## ID Client")
-    id_list = df["SK_ID_CURR"].values
+    id_list = data["SK_ID_CURR"].values
     id_client = st.selectbox(
             "Sélectionner l'identifiant du client", id_list)
 
@@ -262,98 +269,48 @@ if (int(id_client) in id_list):
       #-------------------------------------------------------
         # Afficher la décision de crédit
         #-------------------------------------------------------
-    
+if show_credit_decision:
     base_url = "http://127.0.0.1:5000/credit/" + str(id_client)
 
-    with st.spinner('Chargement du score du client...'): 
+    # Charger le modèle et effectuer les calculs nécessaires
+    lgbm = pickle.load(open('best_final_prediction.pickle', 'rb'))
+    classe_reelle = data[data['SK_ID_CURR'] == id_client]
+    ignore_features = ['Unnamed: 0', 'SK_ID_CURR', 'INDEX', 'TARGET']
+    relevant_features = [col for col in classe_reelle.columns if col not in ignore_features]
+    classe_reelle = classe_reelle[relevant_features]
 
-            lgbm = pickle.load(open('Modele.pickle', 'rb'))
+    proba = lgbm.predict_proba(classe_reelle)
+    prediction = lgbm.predict(classe_reelle)
+    pred_proba = {
+        'prediction': int(prediction),
+        'proba': float(proba[0][0])
+    }
 
-            classe_reelle = df[df['SK_ID_CURR']==id_client]
+    classe_predite = pred_proba['prediction']
+    if classe_predite == 1:
+        etat = 'client à risque'
+    else:
+        etat = 'client peu risqué'
+    proba = 1 - pred_proba['proba']
 
-            ignore_features = ['Unnamed: 0', 'SK_ID_CURR','INDEX', 'TARGET']
-            relevant_features = [col for col in classe_reelle.columns if col not in ignore_features]
-            classe_reelle = classe_reelle[relevant_features]
-            print('classe_reelle shape = ', classe_reelle.shape)
+    # Affichage de la prédiction
+    prediction = pred_proba['proba']
+    classe_reelle = str(classe_reelle).replace('0', 'sans défaut').replace('1', 'avec défaut')
+    chaine = 'Prédiction : **' + etat +  '** avec **' + str(round(proba * 100)) + '%** de risque de défaut (classe réelle : ' + str(classe_reelle) + ')'
 
+    # Calcul du score du client
+    client_score = round(proba * 100, 2)
 
-            proba = lgbm.predict_proba(classe_reelle)
-            prediction = lgbm.predict(classe_reelle)
-            pred_proba = {
-            'prediction': int(prediction),
-            'proba': float(proba[0][0])
-        }
+    # Affichage de la décision
+    left_column, right_column = st.columns((1, 2))
+    left_column.markdown('Risque de défaut: **{}%**'.format(str(client_score)))
 
-            classe_predite = pred_proba['prediction']
-            if classe_predite == 1:
-                etat = 'client à risque'
-            else:
-                etat = 'client peu risqué'
-            proba = 1-pred_proba['proba'] 
-
-            #affichage de la prédiction
-            prediction = pred_proba['proba']
-            #classe_reelle = dataframe[dataframe['SK_ID_CURR']==int(id_input)]
-            classe_reelle = str(classe_reelle).replace('0', 'sans défaut').replace('1', 'avec défaut')
-            chaine = 'Prédiction : **' + etat +  '** avec **' + str(round(proba*100)) + '%** de risque de défaut (classe réelle : '+str(classe_reelle) + ')'
-
-                #proba = 1-API_data['proba'] 
-
-            client_score = round(proba*100, 2)
-
-            left_column, right_column = st.columns((1, 2))
-
-            left_column.markdown('Risque de défaut: **{}%**'.format(str(client_score)))
-            
-
-            if classe_predite == 1:
-                    left_column.markdown('Décision: <span style="color:red">**{}**</span>'.format(etat), unsafe_allow_html=True)   
-            else:    
-                    left_column.markdown('Décision: <span style="color:green">**{}**</span>'.format(etat),unsafe_allow_html=True)
-
-            gauge = go.Figure(go.Indicator(
-                    mode = "gauge+delta+number",
-                    title = {'text': 'Pourcentage de risque de défaut de paiement'},
-                    value = client_score,
-                    domain = {'x': [0, 1], 'y': [0, 1]},
-                    gauge = {'axis': {'range': [None, 100]},
-                                'steps' : [
-                                    {'range': [0, 25], 'color': "lightgreen"},
-                                    {'range': [25, 50], 'color': "lightyellow"},
-                                    {'range': [50, 75], 'color': "orange"},
-                                    {'range': [75, 100], 'color': "red"},
-                                    ],
-                                'threshold': {
-                                'line': {'color': "black", 'width': 0},
-                                'thickness': 0.8,
-                                'value': client_score},
-
-                                'bar': {'color': "black", 'thickness' : 0},
-                                },
-                        ))
-
-            gauge.update_layout(width=450, height=250, 
-                                        margin=dict(l=50, r=50, b=0, t=0, pad=4))
-
-            right_column.plotly_chart(gauge)
-
-            show_local_feature_importance = st.checkbox(
-                    "Afficher les variables ayant le plus contribué à la décision du modèle ?")
-            if (show_local_feature_importance):
-                shap.initjs()
-                number = st.slider('Sélectionner le nombre de feautures à afficher ?',2, 20, 8)
-
-                X = df[df['SK_ID_CURR']==int(id_client)]
-                X = X[relevant_features]
-
-                fig, ax = plt.subplots(figsize=(15, 15))
-                explainer = shap.TreeExplainer(lgbm)
-                shap_values = explainer.shap_values(X)
-                shap.summary_plot(shap_values[0], X, plot_type ="bar",max_display=number, color_bar=False, plot_size=(8, 8))
+    if classe_predite == 1:
+        left_column.markdown('Décision: <span style="color:red">**{}**</span>'.format(etat), unsafe_allow_html=True)
+    else:
+        left_column.markdown('Décision: <span style="color:green">**{}**</span>'.format(etat), unsafe_allow_html=True)
 
 
-                st.pyplot(fig)
-            
 personal_info_cols = {
             'CODE_GENDER': "GENRE",
             'DAYS_BIRTH': "AGE",
@@ -442,7 +399,7 @@ if (show_client_comparison):
 if (shap_general):
         original_title = '<p style="font-size: 20px;text-align: center;"> <u>Quelles sont les informations les plus importantes dans la prédiction ?</u> </p>'
         st.markdown(original_title, unsafe_allow_html=True)
-        feature_imp = pd.DataFrame(sorted(zip(lgbm.booster_.feature_importance(importance_type='gain'), df.columns)), columns=['Value','Feature'])
+        feature_imp = pd.DataFrame(sorted(zip(lgbm.booster_.feature_importance(importance_type='gain'), data.columns)), columns=['Value','Feature'])
 
         fig, ax = plt.subplots(figsize=(10, 5))
         sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False).head(5))
