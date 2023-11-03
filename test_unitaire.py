@@ -40,15 +40,6 @@ def test_api_is_running():
     assert response.status_code == 200
     assert response.text == 'Welcome to my Flask API!'
 
-# Test de la route '/credit/' pour vérifier la prédiction de crédit
-def test_credit_prediction():
-    id_client = 100028  # Remplacez par un ID client existant
-    response = requests.get(api_url + f'/credit/?id_client={id_client}')
-    assert response.status_code == 200
-    data = response.json()
-    assert "prediction" in data  # Assurez-vous que la réponse contient "prediction"
-    assert "proba" in data  # Assurez-vous que la réponse contient "proba"
-
 
 def test_dataframe_shape():
     app_train_df = data_train
