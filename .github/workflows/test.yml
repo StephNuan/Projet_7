@@ -2,49 +2,40 @@ name: test_workflow
 
 on: push
 
-jobs1:
-  run-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.11.5]
-
+jobs:
+  jobs1:
+    runs-on: ubuntu-latest
+      
     name: UnitaryTests
-    runs-on: ${{ matrix.os }}
 
+  
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        - name: Checkout code
+          uses: actions/checkout@v3
+  
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: "3.11.5"
+  
+        - name: Install dependencies
+          run: |
+            pip install --upgrade pip
+            pip install pytest
+            pip install requests
+            pip install pandas
+            pip install numpy
+            pip install imbalanced-learn
+            pip install lightgbm
+  
+        - name: Run tests
+          run: pytest
+  jobs2:
+    needs: jobs1
+    runs-on: ubuntu-latest
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install pytest
-          pip install requests
-          pip install pandas
-          pip install numpy
-          pip install imbalanced-learn
-          pip install lightgbm
-
-      - name: Run tests
-        run: pytest
-jobs2:
-  needs: jobs1
-  run-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.11.5]
-
-    name: déploiement
-    with: 
-      url: https://projet7-oc.streamlit.app/
-      method: "POST"
-    runs-on: ${{ matrix.os }}
+    steps: 
+    - name: déploiement
+      with: 
+        url: https://projet7-oc.streamlit.app/
+        method: "POST"
