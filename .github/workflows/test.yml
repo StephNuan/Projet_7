@@ -31,16 +31,22 @@ jobs:
         - name: Run tests
           run: pytest
   jobs2:
-    needs: jobs1
-    runs-on: ubuntu-latest
+   needs: jobs1
+   runs-on: ubuntu-latest
+   name: Deployment
+     
+   steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          repository: self  
 
-    steps: 
-    - name: déploiement
-      uses: actions/checkout@v3
-      with: 
-        url: https://projet7-oc.streamlit.app/
-        method: "POST"
-        username: stephanie.nuan@gmail.com
-        password: Lanuance_04
-        
+      - name: Deploy to Streamlit
+        run: |
+          # Votre script de déploiement ici
+          # Assurez-vous d'exécuter la commande pour déployer votre application
+
+          # Par exemple, si vous utilisez Streamlit pour déployer :
+          pip install streamlit
+          streamlit run dash.py  # Remplacez "app.py" par le nom de votre script
         
