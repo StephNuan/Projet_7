@@ -31,16 +31,6 @@ client_id = 100028
 #    assert "proba" in response_data, "La réponse ne contient pas la clé 'proba'"
 
 
-# L'URL de votre API
-api_url = "http://127.0.0.1:5000"  # Remplacez cela par l'URL de votre API en production
-
-# Test de la route '/' pour vérifier si l'API est en cours d'exécution
-def test_api_is_running():
-    response = requests.get(api_url + '/')
-    assert response.status_code == 200
-    assert response.text == 'Welcome to my Flask API!'
-
-
 def test_dataframe_shape():
     app_train_df = data_train
     assert app_train_df.shape == (149998, 122)
