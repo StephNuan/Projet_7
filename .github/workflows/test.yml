@@ -2,7 +2,7 @@ name: test_workflow
 
 on: push
 
-jobs:
+jobs_1:
   run-tests:
     strategy:
       fail-fast: false
@@ -34,3 +34,16 @@ jobs:
 
       - name: Run tests
         run: pytest
+jobs_2:
+  run-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.11.5]
+
+    name: déploiement
+    with: 
+      url: https://projet7-oc.streamlit.app/
+      method: "POST"
+    runs-on: ${{ matrix.os }}
