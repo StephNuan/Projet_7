@@ -39,14 +39,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         #with:
-          #repository: self  
+          #repository: self 
 
-      - name: Deploy to Streamlit
-        run: |
+      - name: Deploy to Server
+        uses: appleboy/scp-action@master
+        with:
+            host: ${{ secrets.SERVER_HOST }}
+            app_url: https://projet7-oc.streamlit.app/
+            server_details: ${{ secrets.SERVER_DETAILS }}
+
+
+
+      #- name: Deploy to Streamlit
+    # run: |
           # Votre script de déploiement ici
           # Assurez-vous d'exécuter la commande pour déployer votre application
 
           # Par exemple, si vous utilisez Streamlit pour déployer :
-          pip install streamlit
-          streamlit run dash.py  # Remplacez "app.py" par le nom de votre script
+          #pip install streamlit
+          #streamlit run dash.py  # Remplacez "app.py" par le nom de votre script
         
