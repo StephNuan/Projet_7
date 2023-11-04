@@ -2,7 +2,7 @@ name: test_workflow
 
 on: push
 
-jobs_1:
+jobs1:
   run-tests:
     strategy:
       fail-fast: false
@@ -34,7 +34,8 @@ jobs_1:
 
       - name: Run tests
         run: pytest
-jobs_2:
+jobs2:
+  needs: jobs1
   run-tests:
     strategy:
       fail-fast: false
