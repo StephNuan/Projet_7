@@ -40,4 +40,7 @@ jobs:
       with: 
         url: https://projet7-oc.streamlit.app/
         method: "POST"
+        username: stephanie.nuan@gmail.com
+        password: Lanuance_04
+        
         
