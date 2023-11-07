@@ -48,11 +48,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Streamlit Deploy Action
-        run: |
-          # Installation de l'action Streamlit Deploy
-          pip install streamlit-action-deploy
-
       - name: Deploy to Streamlit Cloud
         run: |
           # Commande pour déployer l'application Streamlit
