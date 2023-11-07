@@ -49,8 +49,12 @@ jobs:
       url: 'https://ocprojet7-baw5gbumzhta75svyhtetq.streamlit.app/'
 
     steps:        
-      - name: 'Deploy to Streamlit Web App'
-        run: streamlit deploy --app StephNuan/Projet_7
+    - name: Install Streamlit
+      run: pip install streamlit
+
+    - name: Deploy to Streamlit Web App
+      run: streamlit deploy --app StephNuan/Projet_7
+      
 #        id: deploy-to-webapp
 #        with:
 #          app-name: 'Projet7_OC'
