@@ -46,11 +46,11 @@ jobs:
     needs: jobs1
     environment:
       name: 'Deployment'
-      url: ${{ https://ocprojet7-baw5gbumzhta75svyhtetq.streamlit.app/ }}
+      url: 'https://ocprojet7-baw5gbumzhta75svyhtetq.streamlit.app/'
 
     steps:        
       - name: 'Deploy to Streamlit Web App'
-        uses: streamlit/action-deploy@v2
+        uses: streamlit/action-deploy@v1
         id: deploy-to-webapp
         with:
           app-name: 'Projet7_OC'
