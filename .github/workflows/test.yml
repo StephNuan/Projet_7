@@ -59,7 +59,7 @@ jobs:
       - name: Deploy to Streamlit Cloud
         run: |
           # Commande pour déployer l'application Streamlit
-          streamlit run Projet_7/master/dash.py  # Spécifiez ici le chemin complet depuis la racine de votre référentiel GitHub
+          streamlit run dash.py  
         env:
           STREAMLIT_CLOUD_USERNAME: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
           STREAMLIT_CLOUD_TOKEN: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
