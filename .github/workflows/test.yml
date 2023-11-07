@@ -50,7 +50,7 @@ jobs:
 
     steps:        
       - name: 'Deploy to Streamlit Web App'
-#        uses: azure/webapps-deploy@v2
+        uses: streamlit/action-deploy@v2
         id: deploy-to-webapp
         with:
           app-name: 'Projet7_OC'
