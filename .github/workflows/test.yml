@@ -42,19 +42,35 @@ jobs:
 
 
   jobs2:
+  deploy:
     runs-on: ubuntu-latest
-    needs: jobs1
-    environment:
-      name: 'Deployment'
-      url: 'https://ocprojet7-baw5gbumzhta75svyhtetq.streamlit.app/'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    steps:        
-    - name: Check Streamlit Version
-      run: streamlit --version
+      - name: Install Streamlit Deploy Action
+        uses: streamlit/action-deploy@v1
+
+      - name: Deploy to Streamlit Cloud
+        with:
+          username: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
+          token: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
+          app_name: StephNuan/Projet_7/master/dash.py
+          
+#    runs-on: ubuntu-latest
+#    needs: jobs1
+#    environment:
+#      name: 'Deployment'
+#      url: 'https://ocprojet7-baw5gbumzhta75svyhtetq.streamlit.app/'
+
+#    steps:        
+#    - name: Check Streamlit Version
+#      run: streamlit --version
 
 
-    - name: Deploy to Streamlit Web App
-      run: streamlit deploy --app StephNuan/Projet_7
+#    - name: Deploy to Streamlit Web App
+#      run: streamlit deploy --app StephNuan/Projet_7
       
 #        id: deploy-to-webapp
 #        with:
