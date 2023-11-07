@@ -48,6 +48,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11.5"  # Vous pouvez spécifier la version de Python requise
+
+      - name: Install Streamlit
+        run: pip install streamlit
+
       - name: Deploy to Streamlit Cloud
         run: |
           # Commande pour déployer l'application Streamlit
