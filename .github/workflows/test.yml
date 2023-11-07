@@ -59,7 +59,7 @@ jobs:
       - name: Deploy to Streamlit Cloud
         run: |
           # Commande pour déployer l'application Streamlit
-          streamlit run --app StephNuan/Projet_7/master/dash.py
+          streamlit run StephNuan/Projet_7/master/dash.py
         env:
           STREAMLIT_CLOUD_USERNAME: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
           STREAMLIT_CLOUD_TOKEN: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
