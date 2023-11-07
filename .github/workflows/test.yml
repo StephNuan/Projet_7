@@ -51,9 +51,9 @@ jobs:
     steps:        
       - name: 'Deploy to Streamlit Web App'
         run: streamlit deploy --app StephNuan/Projet_7
-        id: deploy-to-webapp
-        with:
-          app-name: 'Projet7_OC'
+#        id: deploy-to-webapp
+#        with:
+#          app-name: 'Projet7_OC'
 #          slot-name: 'Production'
 #          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_94888
 
