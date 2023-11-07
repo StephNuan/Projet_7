@@ -42,7 +42,6 @@ jobs:
 
 
   jobs2:
-  deploy:
     runs-on: ubuntu-latest
     
     steps:
