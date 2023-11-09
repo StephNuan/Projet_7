@@ -31,34 +31,22 @@ jobs:
 
 
   jobs2:
-    name: Test API Connection
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.11.5"
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.11.5"  # Vous pouvez spécifier la version de Python requise
 
-    - name: Install dependencies
-      run: |
-        pip install requests
+      - name: Deploy to Vercel
+        uses: vercel/action@v21
+        with:
+          STREAMLIT_CLOUD_USERNAME: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
+          STREAMLIT_CLOUD_TOKEN: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
 
-    - name: Install Flask
-      run: pip install flask
 
-    - name: Test API Connection
-      run: |
-        echo "Testing API connection to $API_URL"
-        response=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
-        echo "HTTP Response Code: $response"
-        if [ $response -eq 200 ]; then
-          echo "API connection successful!"
-        else
-          echo "Failed to connect to API with HTTP status code $response."
-          exit 1
-        fi
 
