@@ -42,28 +42,69 @@ jobs:
 
 
   jobs2:
+    name: Test API Connection
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.11.5"  # Vous pouvez spécifier la version de Python requise
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.11.5"
 
-      - name: Install Streamlit
-        run: pip install streamlit
+    - name: Install dependencies
+      run: |
+        pip install requests
 
-      - name: Deploy to Streamlit Cloud
-        run: |
+    - name: Test API Connection
+      run: |
+        # Remplacez l'URL par l'URL de votre API Flask
+        API_URL="http://127.0.0.1:5000/credit/"
+        
+        # Envoi d'une requête GET à l'API
+        response=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
+
+        # Vérification du code de statut HTTP de la réponse
+        if [ $response -eq 200 ]; then
+          echo "Connexion à l'API réussie!"
+        else
+          echo "Échec de la connexion à l'API avec le code de statut HTTP $response."
+          exit 1
+        fi
+
+
+
+
+
+
+
+
+
+  
+#    runs-on: ubuntu-latest
+    
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+
+#      - name: Set up Python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: "3.11.5"  # Vous pouvez spécifier la version de Python requise
+
+#      - name: Install Streamlit
+#        run: pip install streamlit
+
+#      - name: Deploy to Streamlit Cloud
+#        run: |
           # Commande pour déployer l'application Streamlit
           streamlit deploy --app Projet_7/blob/master/dash.py
 
-        env:
-          STREAMLIT_CLOUD_USERNAME: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
-          STREAMLIT_CLOUD_TOKEN: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
+#        env:
+#          STREAMLIT_CLOUD_USERNAME: ${{ secrets.STREAMLIT_CLOUD_USERNAME }}
+#          STREAMLIT_CLOUD_TOKEN: ${{ secrets.STREAMLIT_CLOUD_TOKEN }}
           
           
 #    runs-on: ubuntu-latest
