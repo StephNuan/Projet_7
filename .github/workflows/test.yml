@@ -42,8 +42,8 @@ jobs:
         with:
           python-version: "3.11.5"  # Vous pouvez spécifier la version de Python requise
             
-      - name: Install Streamlit Action
-        run: git clone https://github.com/StephNuan/Projet_7
+      - name: Install Streamlit
+        run: pip install streamlit
 
 
       - name: Deploy to Streamlit Sharing
