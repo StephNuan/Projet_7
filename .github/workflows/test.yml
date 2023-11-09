@@ -47,18 +47,18 @@ jobs:
       run: |
         pip install requests
 
+    - name: Install Flask
+      run: pip install flask
+
     - name: Test API Connection
       run: |
-        # Remplacez l'URL par l'URL de votre API Flask
-        API_URL="http://127.0.0.1:5000/credit/"
-        
-        # Envoi d'une requête GET à l'API
+        echo "Testing API connection to $API_URL"
         response=$(curl -s -o /dev/null -w "%{http_code}" $API_URL)
-
-        # Vérification du code de statut HTTP de la réponse
+        echo "HTTP Response Code: $response"
         if [ $response -eq 200 ]; then
-          echo "Connexion à l'API réussie!"
+          echo "API connection successful!"
         else
-          echo "Échec de la connexion à l'API avec le code de statut HTTP $response."
+          echo "Failed to connect to API with HTTP status code $response."
           exit 1
         fi
+
