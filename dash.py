@@ -15,6 +15,7 @@ import shap
 import joblib
 from PIL import Image
 import warnings
+
 warnings.filterwarnings("ignore")
     
 zip_file_path = 'df_test.zip'  
@@ -116,17 +117,17 @@ def plot_distribution(applicationDF,feature, client_feature_val, title):
         t1 = applicationDF.loc[applicationDF['TARGET'] == 1]
 
         if (feature == "DAYS_BIRTH"):
-            sns.kdeplot((t0[feature]/-365).dropna(), label = 'Remboursé', color='g')
+            sns.kdeplot((t0[feature]/-365).dropna(), label = 'Non défaillant', color='g')
             sns.kdeplot((t1[feature]/-365).dropna(), label = 'Défaillant', color='r')
             plt.axvline(float(client_feature_val/-365),  color="blue", linestyle='--', label = 'Position Client')
 
         elif (feature == "DAYS_EMPLOYED"):
-            sns.kdeplot((t0[feature]/365).dropna(), label = 'Remboursé', color='g')
+            sns.kdeplot((t0[feature]/365).dropna(), label = 'Non défaillant', color='g')
             sns.kdeplot((t1[feature]/365).dropna(), label = 'Défaillant', color='r')    
             plt.axvline(float(client_feature_val/365), color="blue", linestyle='--', label = 'Position Client')
 
         else:    
-            sns.kdeplot(t0[feature].dropna(), label = 'Remboursé', color='g')
+            sns.kdeplot(t0[feature].dropna(), label = 'Non défaillant', color='g')
             sns.kdeplot(t1[feature].dropna(), label = 'Défaillant', color='r')
             plt.axvline(float(client_feature_val), color="blue",linestyle='--', label = 'Position Client')
 
@@ -144,16 +145,18 @@ def plot_distribution(applicationDF,feature, client_feature_val, title):
 def univariate_categorical(applicationDF,feature,client_feature_val,titre,ylog=False,label_rotation=False,
                                horizontal_layout=True):
         if (client_feature_val.iloc[0] != np.nan):
+            applicationDF_filtered = applicationDF[applicationDF[feature] != 'XNA']
 
-            temp = applicationDF[feature].value_counts()
+
+            temp = applicationDF_filtered[feature].value_counts()
             df1 = pd.DataFrame({feature: temp.index,'Number of contracts': temp.values})
 
-            categories = applicationDF[feature].unique()
+            categories = applicationDF_filtered[feature].unique()
             categories = list(categories)
 
             # Calculate the percentage of target=1 per category value
             
-            cat_perc = applicationDF[[feature,'TARGET']].groupby([feature],as_index=False).mean()
+            cat_perc = applicationDF_filtered[[feature,'TARGET']].groupby([feature],as_index=False).mean()
             cat_perc["TARGET"] = cat_perc["TARGET"]*100
             cat_perc.sort_values(by='TARGET', ascending=False, inplace=True)
 
@@ -165,7 +168,7 @@ def univariate_categorical(applicationDF,feature,client_feature_val,titre,ylog=F
             # 1. Subplot 1: Count plot of categorical column
             s = sns.countplot(ax=ax1, 
                             x = feature, 
-                            data=applicationDF,
+                            data=applicationDF_filtered,
                             hue ="TARGET",
                             order=cat_perc[feature],
                             palette=['g','r'])
@@ -176,7 +179,7 @@ def univariate_categorical(applicationDF,feature,client_feature_val,titre,ylog=F
             ax1.set(ylabel = "Nombre de clients")
             ax1.set_title(titre, fontdict={'fontsize' : 15, 'fontweight' : 'bold'})   
             ax1.axvline(int(pos1), color="blue", linestyle='--', label = 'Position Client')
-            ax1.legend(['Position Client','Remboursé','Défaillant' ])
+            ax1.legend(['Position Client','Non défaillant','Défaillant' ])
 
             # If the plot is not readable, use the log scale.
             if ylog:
@@ -200,7 +203,7 @@ def univariate_categorical(applicationDF,feature,client_feature_val,titre,ylog=F
             plt.ylabel('Pourcentage de défaillants [%]', fontsize=10)
             plt.tick_params(axis='both', which='major', labelsize=10)
             ax2.set_title(titre+" (% Défaillants)",fontdict={'fontsize' : 15, 'fontweight' : 'bold'})
-            ax2.axvline(int(pos2), color="blue", linestyle='--', label = 'Position Client')
+            #ax2.axvline(int(pos2), color="blue", linestyle='--', label = 'Position Client')
             ax2.legend()
             plt.show()
             st.pyplot(fig)
@@ -233,7 +236,7 @@ st.sidebar.image(logo, width=150,
 with st.sidebar:
     #st.header(" Prêt à dépenser")
 
-    st.write("## ID Client")
+    st.write("## ID client")
     id_list = data["SK_ID_CURR"].values
     id_client = st.selectbox(
             "Sélectionner l'identifiant du client", id_list)
@@ -257,17 +260,14 @@ with st.sidebar:
 #Titre principal
 
 html_temp = """
-    <div style="background-color: gray; padding:10px; border-radius:10px">
-    <h1 style="color: white; text-align:center">Dashboard de Scoring Crédit</h1>
-    </div>
-    <p style="font-size: 20px; font-weight: bold; text-align:center">
-    Support de décision crédit à destination des gestionnaires de la relation client</p>
-    """
+    <h1 style="color: #0000FF; text-align:center; font-size: 40px; font-weight: bold;">Tableau de bord du rapport de crédit</h1>
+"""
+
 st.markdown(html_temp, unsafe_allow_html=True)
 
 
 #Afficher l'ID Client sélectionné
-st.write("ID Client Sélectionné :", id_client)
+st.write("Identifiant du client (ID_client):", id_client)
 if (int(id_client) in id_list):
     client_info = data_test[data_test['SK_ID_CURR']==int(id_client)]
 
@@ -294,9 +294,9 @@ if show_credit_decision:
 
     classe_predite = pred_proba['prediction']
     if classe_predite == 1:
-        etat = 'client à risque'
+        etat = 'Client à risque'
     else:
-        etat = 'client peu risqué'
+        etat = 'Client peu risqué'
     proba = 1 - pred_proba['proba']
 
     # Affichage de la prédiction
@@ -403,12 +403,30 @@ if (show_client_comparison):
         # Afficher la feature importance globale
         #-------------------------------------------------------
 if (shap_general):
-        original_title = '<p style="font-size: 20px;text-align: center;"> <u>Quelles sont les informations les plus importantes dans la prédiction ?</u> </p>'
-        st.markdown(original_title, unsafe_allow_html=True)
-        feature_imp = pd.DataFrame(sorted(zip(lgbm.booster_.feature_importance(importance_type='gain'), data.columns)), columns=['Value','Feature'])
+        # original_title = '<p style="font-size: 20px;text-align: center;"> <u>Top 10 des variables qui contribuent à la prédiction du modèle </u> </p>'
+        # st.markdown(original_title, unsafe_allow_html=True)
+        # feature_imp = pd.DataFrame(sorted(zip(lgbm.booster_.feature_importance(importance_type='gain'), data.columns)), columns=['Value','Feature'])
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False).head(5))
-        ax.set(title='Importance des informations', xlabel='', ylabel='')
-        st.pyplot(fig)    
+        # fig, ax = plt.subplots(figsize=(10, 5))
+        # sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False).head(10))
+        # st.pyplot(fig)  
+
+        st.write('## <p style="font-size:20px;">Interprétation globale: impact sur la prédiction</p>', unsafe_allow_html=True)
+        shap.initjs()   
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        explainer = shap.TreeExplainer(lgbm)
+        shap_values = shap.TreeExplainer(lgbm.booster_).shap_values(data.iloc[:10000, 1:])
+        shap.summary_plot(shap_values, features=data.drop(labels="SK_ID_CURR", axis=1).columns, plot_type ="bar", max_display=10, color_bar=False, plot_size=(10, 10))            
+        st.pyplot(fig)  
+
+        st.write('## <p style="font-size:20px;">Interprétation locale: impact sur la prédiction de la classe "1" du modèle</p>', unsafe_allow_html=True)                            
+        shap.initjs()   
+
+        fig, ax = plt.subplots(figsize=(10, 10))
+        explainer = shap.TreeExplainer(lgbm)
+        shap_values = shap.TreeExplainer(lgbm.booster_).shap_values(data.iloc[:10000, 1:])
+        shap.summary_plot(shap_values[1], features=data.drop(labels="SK_ID_CURR", axis=1).columns, plot_type ="bar", max_display=10, color_bar=False, plot_size=(10, 10))            
+        st.pyplot(fig)  
+
 
